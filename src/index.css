@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@200;300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Premium Home Decor Fonts */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Premium Warm Minimalist/Restoration Hardware Palette */
+  --color-decor-ivory: #FAF8F5;
+  --color-decor-beige: #F3EFE9;
+  --color-decor-cream: #EAE3D8;
+  --color-decor-gold: #CAA750;
+  --color-decor-gold-light: #E8D5A5;
+  --color-decor-charcoal: #1F2022;
+  --color-decor-black: #111111;
+  --color-decor-stone: #555350;
+  --color-decor-marble: #F5F2EC;
+}
+
+/* Custom Base CSS Variables for Dark/Light Themes */
+:root {
+  --bg-primary: #FAF8F5;
+  --text-primary: #111111;
+  --text-secondary: #555350;
+  --bg-secondary: #F3EFE9;
+  --bg-card: #FAF8F5;
+  --border-cream: #EAE3D8;
+  --glass-bg: rgba(250, 248, 245, 0.85);
+  --glass-border: rgba(85, 83, 80, 0.05);
+}
+
+html.dark {
+  --bg-primary: #111111;
+  --text-primary: #FAF8F5;
+  --text-secondary: #a39f99;
+  --bg-secondary: #1F2022;
+  --bg-card: #18191a;
+  --border-cream: #2a2b2c;
+  --glass-bg: rgba(17, 17, 17, 0.85);
+  --glass-border: rgba(202, 167, 80, 0.15);
+}
+
+/* Custom Base Styles */
+@layer base {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    color: var(--text-primary);
+    transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Custom Scrollbar for Home Decor Premium Brand */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-decor-gold);
+  }
+}
+
+/* Custom Glassmorphism & Shadow Utilities for Decor Brand */
+.glass-panel-light {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.decor-shadow-soft {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+}
+
+.decor-shadow-premium {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+}
+
+.gold-border-hover {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gold-border-hover:hover {
+  border-color: var(--color-decor-gold);
+  box-shadow: 0 12px 40px rgba(202, 167, 80, 0.05);
+}
