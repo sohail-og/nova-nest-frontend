@@ -1,8 +1,8 @@
 import API from './api';
 
 export const authService = {
-  login: async (username, password) => {
-    const response = await API.post('/api/auth/login', { username, password });
+  login: async (email, password) => {
+    const response = await API.post('/api/auth/login', { email, password });
     if (response.data && response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
@@ -26,6 +26,8 @@ export const authService = {
     return response.data;
   },
 
+
+
   resetPassword: async (resetData) => {
     // resetData: { email, newPassword, confirmPassword }
     const response = await API.put('/api/auth/reset-password', resetData);
@@ -38,15 +40,8 @@ export const authService = {
   },
 
   logout: async () => {
-    const token = localStorage.getItem('token');
     try {
-      if (token) {
-        await API.post('/api/auth/logout', {}, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      }
+      await API.post('/api/auth/logout');
     } catch (e) {
       console.error("Logout request error", e);
     } finally {

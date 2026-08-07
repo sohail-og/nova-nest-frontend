@@ -1,10 +1,8 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
-import { toast } from 'react-toastify';
-
 const inrFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",

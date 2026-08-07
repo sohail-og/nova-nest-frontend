@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { Eye, ArrowRight, Package } from 'lucide-react';
+import API from '../services/api';
+import { Eye, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const inrFormatter = new Intl.NumberFormat("en-IN", {
@@ -14,18 +14,11 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/orders', {
-          headers: getHeaders()
-        });
+        const response = await API.get('/api/orders');
         setOrders(response.data || []);
       } catch (err) {
         console.error("Failed to load orders API", err.config?.url, err.response?.status);

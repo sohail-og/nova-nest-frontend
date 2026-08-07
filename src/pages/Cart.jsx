@@ -1,7 +1,7 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Trash2, ShoppingBag, ArrowRight, Minus, Plus } from 'lucide-react';
+import { Trash2, ArrowRight, Minus, Plus } from 'lucide-react';
 
 const inrFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",

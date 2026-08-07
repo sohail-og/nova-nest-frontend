@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, Eye, ShoppingBag, SlidersHorizontal, Star, X } from 'lucide-react';
+import { Search, Heart,ShoppingBag, SlidersHorizontal, Star, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import axios from 'axios';
+import API from '../services/api';
+import ProductCard from '../components/ProductCard';
 
 const inrFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -31,7 +32,7 @@ export default function Products() {
     setQuickViewActiveImage(product.imageUrl || '/api/placeholder/600/700');
     setQuickViewImages([]);
     try {
-      const response = await axios.get(`http://localhost:8080/api/productimages/product/${product.id}`);
+      const response = await API.get(`/api/productimages/product/${product.id}`);
       const imageList = response.data || [];
       setQuickViewImages(imageList);
       if (imageList.length > 0) {
@@ -62,8 +63,14 @@ export default function Products() {
 
   // Sync state if search params category changes
   useEffect(() => {
-    setSelectedCategory(searchParams.get('category') || 'All');
-  }, [searchParams]);
+    const catParam = searchParams.get('category') || 'All';
+    const matchedCat = categories.find(c => c.id?.toString() === catParam);
+    if (matchedCat) {
+      setTimeout(() => setSelectedCategory(matchedCat.categoryName), 0);
+    } else {
+      setTimeout(() => setSelectedCategory(catParam), 0);
+    }
+  }, [searchParams, categories]);
 
   // Log API Errors explicitly in browser console
   const logApiError = (error) => {
@@ -85,21 +92,21 @@ export default function Products() {
       setLoading(true);
       try {
         // Fetch Categories
-        const catRes = await axios.get('http://localhost:8080/api/categories')
+        const catRes = await API.get('/api/categories')
           .catch(err => {
             logApiError(err);
             throw err;
           });
 
         // Fetch Products
-        const prodRes = await axios.get('http://localhost:8080/api/products')
+        const prodRes = await API.get('/api/products')
           .catch(err => {
             logApiError(err);
             throw err;
           });
 
         // Fetch Product Images
-        const imgRes = await axios.get('http://localhost:8080/api/productimages')
+        const imgRes = await API.get('/api/productimages')
           .catch(err => {
             logApiError(err);
             throw err;
@@ -120,12 +127,19 @@ export default function Products() {
             imageUrl: firstImage,
             allImages: matchedImages.map(img => img.imageUrl),
             // Fallback category resolution if needed
-            resolvedCategoryName: prod.category?.categoryName || 'Home Accessories'
+            resolvedCategoryName: prod.category?.categoryName || 'Home Accessories',
+            resolvedCategoryId: prod.category?.id ? prod.category.id.toString() : ''
           };
         });
 
         setCategories(rawCategories);
         setProducts(joined);
+        
+        // Resolve initialCategory ID to categoryName if it's an ID
+        const matchedCat = rawCategories.find(c => c.id?.toString() === initialCategory);
+        if (matchedCat) {
+          setTimeout(() => setSelectedCategory(matchedCat.categoryName), 0);
+        }
       } catch (err) {
         console.error("Error building products data layer:", err);
       } finally {
@@ -139,7 +153,9 @@ export default function Products() {
   // Filter & Sort Logic
   const filteredProducts = products
     .filter(prod => {
-      const matchCat = selectedCategory === 'All' || prod.resolvedCategoryName === selectedCategory;
+      const matchCat = selectedCategory === 'All' || 
+                       prod.resolvedCategoryName === selectedCategory ||
+                       prod.resolvedCategoryId === selectedCategory;
       const matchSearch = prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (prod.description && prod.description.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchCat && matchSearch;
@@ -250,114 +266,11 @@ export default function Products() {
                 <p className="text-xs text-decor-stone font-light tracking-wide uppercase">No items found matching your filters.</p>
               </div>
             ) : (
-              <motion.div 
-                layout
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12"
-              >
-                <AnimatePresence mode="popLayout">
-                  {filteredProducts.map((product) => (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                      key={product.id}
-                      className="group flex flex-col space-y-4 relative"
-                    >
-                      {/* Product Card Image Container */}
-                      <div className="relative overflow-hidden aspect-[4/5] bg-decor-beige border border-decor-cream rounded-sm group decor-shadow-soft">
-                        
-                        {/* Hover Zoom Image */}
-                        <img
-                          src={product.imageUrl || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop"}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-[1.2s] cubic-bezier(0.16, 1, 0.3, 1) group-hover:scale-105"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop";
-                          }}
-                        />
-
-                        {/* Transient Discount Tag */}
-                        {product.discount && parseFloat(product.discount.toString()) > 0 && (
-                          <div className="absolute top-4 left-4 bg-decor-gold text-decor-ivory text-[9px] uppercase tracking-widest px-2 py-0.5 z-20">
-                            -{product.discount}%
-                          </div>
-                        )}
-                        {/* Wishlist Button Overlay */}
-                          <button 
-                            onClick={() => toggleWishlist(product)}
-                            className={`absolute top-4 right-4 bg-decor-beige/85 hover:bg-decor-beige p-2 rounded-full z-20 transition-colors duration-300 shadow-sm ${
-                              isInWishlist(product.id) ? 'text-red-500' : 'text-decor-stone hover:text-red-500'
-                            }`}
-                          >
-                            <Heart size={14} fill={isInWishlist(product.id) ? "currentColor" : "none"} className="stroke-[1.5]" />
-                          </button>
- 
-                         {/* Action Overlays on Hover */}
-                         <div className="absolute inset-0 bg-decor-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-end p-4 space-y-2">
-                           <div className="flex gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                                        {/* Quick View Button */}
-                             <button 
-                               onClick={() => handleQuickView(product)}
-                               className="flex-1 bg-decor-ivory hover:bg-decor-beige text-decor-black text-[9px] uppercase tracking-widest py-2.5 font-medium flex items-center justify-center space-x-1.5 transition-colors duration-300 rounded-sm shadow-sm"
-                             >
-                               <Eye size={12} />
-                               <span>Quick View</span>
-                             </button>
- 
-                             {/* Add To Cart Button */}
-                             <button 
-                               onClick={() => addToCart(product.id, 1)}
-                               disabled={product.stock <= 0}
-                               className="bg-decor-black hover:bg-decor-stone disabled:bg-decor-cream text-decor-ivory p-2.5 transition-colors duration-300 rounded-sm shadow-sm"
-                             >
-                               <ShoppingBag size={14} />
-                             </button>
-                            
-                           </div>
-                         </div>
-                      </div>
-
-                      {/* Product Card Details */}
-                      <div className="space-y-1.5 text-center">
-                        {/* Category Label */}
-                        <span className="text-[9px] uppercase tracking-[0.2em] text-decor-stone font-medium block">
-                          {product.resolvedCategoryName}
-                        </span>
-
-                        {/* Product Title */}
-                        <h3 className="font-serif text-base text-decor-black hover:text-decor-gold transition-colors duration-300 tracking-wide font-light">
-                          {product.name}
-                        </h3>
-
-                        {/* Ratings */}
-                        <div className="flex justify-center items-center space-x-1 text-decor-gold">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              size={10} 
-                              fill={i < Math.round(product.rating || 4.5) ? "currentColor" : "none"} 
-                              className="stroke-[1.5]"
-                            />
-                          ))}
-                          <span className="text-[9px] text-decor-stone font-light pl-1 font-sans">
-                            ({product.rating || '4.5'})
-                          </span>
-                        </div>
-
-                        {/* Pricing */}
-                        <div className="flex items-center justify-center space-x-2 text-xs">
-                          <span className="font-medium text-decor-black">{inrFormatter.format(product.price)}</span>
-                        </div>
-                      </div>
-
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} onQuickView={handleQuickView} />
+                ))}
+              </div>
             )}
           </div>
         )}

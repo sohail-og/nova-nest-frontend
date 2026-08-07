@@ -1,7 +1,9 @@
-import React from 'react';
+/* eslint-disable react-refresh/only-export-components */
+
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import LandingPage from '../pages/LandingPage';
+import Categories from '../pages/Categories';
 import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -18,6 +20,24 @@ import OrderDetails from '../pages/OrderDetails';
 import Search from '../pages/Search';
 import OrderSuccess from '../pages/OrderSuccess';
 
+// Route Protection Guards
+import ProtectedRoute from '../components/ProtectedRoute';
+import AdminProtectedRoute from '../components/AdminProtectedRoute';
+
+// Admin View Pages
+import AdminLogin from '../pages/AdminLogin';
+import AdminDashboard from '../pages/AdminDashboard';
+
+import { Navigate } from 'react-router-dom';
+
+function DefaultRoute() {
+  const username = localStorage.getItem('username') || localStorage.getItem('token');
+  if (username) {
+    return <Navigate to="/home" replace />;
+  }
+  return <Login />;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -25,19 +45,27 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <LandingPage />
+        element: <DefaultRoute />
+      },
+      {
+        path: '/home',
+        element: <ProtectedRoute><LandingPage /></ProtectedRoute>
+      },
+      {
+        path: '/categories',
+        element: <ProtectedRoute><Categories /></ProtectedRoute>
       },
       {
         path: '/products',
-        element: <Products />
+        element: <ProtectedRoute><Products /></ProtectedRoute>
       },
       {
         path: '/products/:id',
-        element: <ProductDetails />
+        element: <ProtectedRoute><ProductDetails /></ProtectedRoute>
       },
       {
         path: '/login',
-        element: <Login />
+        element: <DefaultRoute />
       },
       {
         path: '/register',
@@ -57,36 +85,44 @@ export const router = createBrowserRouter([
       },
       {
         path: '/cart',
-        element: <Cart />
+        element: <ProtectedRoute><Cart /></ProtectedRoute>
       },
       {
         path: '/wishlist',
-        element: <Wishlist />
+        element: <ProtectedRoute><Wishlist /></ProtectedRoute>
       },
       {
         path: '/profile',
-        element: <Profile />
+        element: <ProtectedRoute><Profile /></ProtectedRoute>
       },
       {
         path: '/checkout',
-        element: <Checkout />
+        element: <ProtectedRoute><Checkout /></ProtectedRoute>
       },
       {
         path: '/orders',
-        element: <Orders />
+        element: <ProtectedRoute><Orders /></ProtectedRoute>
       },
       {
         path: '/orders/:id',
-        element: <OrderDetails />
+        element: <ProtectedRoute><OrderDetails /></ProtectedRoute>
       },
       {
         path: '/search',
-        element: <Search />
+        element: <ProtectedRoute><Search /></ProtectedRoute>
       },
       {
         path: '/order-success',
-        element: <OrderSuccess />
+        element: <ProtectedRoute><OrderSuccess /></ProtectedRoute>
+      },
+      {
+        path: '/admin/login',
+        element: <AdminLogin />
       }
     ]
+  },
+  {
+    path: '/admin/dashboard',
+    element: <AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>
   }
 ]);

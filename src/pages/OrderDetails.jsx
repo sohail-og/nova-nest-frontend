@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
-import { ArrowLeft, CheckCircle2, Package, MapPin } from 'lucide-react';
+import API from '../services/api';
+import { ArrowLeft, CheckCircle2, Package, MapPin, Download } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const inrFormatter = new Intl.NumberFormat("en-IN", {
@@ -15,18 +15,11 @@ export default function OrderDetails() {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   useEffect(() => {
     const fetchOrderDetails = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8080/api/orders/${id}`, {
-          headers: getHeaders()
-        });
+        const response = await API.get(`/api/orders/${id}`);
         setOrderData(response.data);
       } catch (err) {
         console.error("Failed to load order details API", err.config?.url, err.response?.status);
@@ -38,6 +31,51 @@ export default function OrderDetails() {
 
     fetchOrderDetails();
   }, [id]);
+
+  const downloadInvoice = async () => {
+    try {
+      toast.info("Generating invoice PDF...");
+      const response = await API.get(`/api/orders/${id}/invoice`, {
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers['content-disposition'] || response.headers['Content-Disposition'];
+      let filename = 'invoice.pdf';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      link.click();
+      toast.success("Invoice PDF downloaded successfully!");
+    } catch (err) {
+      console.error("Failed to download invoice PDF", err);
+      
+      // Try parsing the error block from blob response
+      if (err.response && err.response.data) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errorObj = JSON.parse(reader.result);
+            toast.error(errorObj.error || "Failed to download invoice PDF");
+          } catch {
+            toast.error("Failed to download invoice PDF");
+          }
+        };
+        reader.readAsText(err.response.data);
+      } else {
+        toast.error("Failed to download invoice PDF");
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -86,11 +124,21 @@ export default function OrderDetails() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <span className="text-[10px] uppercase tracking-widest text-decor-stone">Status</span>
-          <span className="px-3 py-1 bg-green-50 text-green-600 border border-green-200 text-[10px] uppercase tracking-widest font-semibold rounded-full">
-            {order.status}
-          </span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center space-x-3">
+            <span className="text-[10px] uppercase tracking-widest text-decor-stone">Status</span>
+            <span className="px-3 py-1 bg-green-50 text-green-600 border border-green-200 text-[10px] uppercase tracking-widest font-semibold rounded-full">
+              {order.status}
+            </span>
+          </div>
+
+          <button 
+            onClick={downloadInvoice}
+            className="flex items-center space-x-2 px-4 py-2 bg-decor-gold hover:bg-decor-black text-white text-[10px] uppercase tracking-[0.15em] font-semibold rounded-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md"
+          >
+            <Download size={12} />
+            <span>Download Invoice</span>
+          </button>
         </div>
       </div>
 

@@ -6,39 +6,39 @@
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Premium Warm Minimalist/Restoration Hardware Palette */
-  --color-decor-ivory: #FAF8F5;
-  --color-decor-beige: #F3EFE9;
-  --color-decor-cream: #EAE3D8;
-  --color-decor-gold: #CAA750;
-  --color-decor-gold-light: #E8D5A5;
-  --color-decor-charcoal: #1F2022;
-  --color-decor-black: #111111;
-  --color-decor-stone: #555350;
-  --color-decor-marble: #F5F2EC;
+  /* Midnight Blue & Champagne Palette mapped dynamically to theme variables */
+  --color-decor-ivory: var(--bg-primary);
+  --color-decor-beige: var(--bg-secondary);
+  --color-decor-cream: var(--border-cream);
+  --color-decor-gold: #C5A880;
+  --color-decor-gold-light: #E6D5B8;
+  --color-decor-charcoal: var(--text-primary);
+  --color-decor-black: var(--text-primary);
+  --color-decor-stone: var(--text-secondary);
+  --color-decor-marble: var(--bg-card);
 }
 
 /* Custom Base CSS Variables for Dark/Light Themes */
 :root {
-  --bg-primary: #FAF8F5;
-  --text-primary: #111111;
-  --text-secondary: #555350;
-  --bg-secondary: #F3EFE9;
-  --bg-card: #FAF8F5;
-  --border-cream: #EAE3D8;
-  --glass-bg: rgba(250, 248, 245, 0.85);
-  --glass-border: rgba(85, 83, 80, 0.05);
+  --bg-primary: #F8F9FA;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --bg-secondary: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --border-cream: #E2E8F0;
+  --glass-bg: rgba(248, 249, 250, 0.85);
+  --glass-border: rgba(30, 41, 59, 0.05);
 }
 
 html.dark {
-  --bg-primary: #111111;
-  --text-primary: #FAF8F5;
-  --text-secondary: #a39f99;
-  --bg-secondary: #1F2022;
-  --bg-card: #18191a;
-  --border-cream: #2a2b2c;
-  --glass-bg: rgba(17, 17, 17, 0.85);
-  --glass-border: rgba(202, 167, 80, 0.15);
+  --bg-primary: #0F172A;
+  --text-primary: #F8F9FA;
+  --text-secondary: #94A3B8;
+  --bg-secondary: #1E293B;
+  --bg-card: #1E293B;
+  --border-cream: #334155;
+  --glass-bg: rgba(15, 23, 42, 0.85);
+  --glass-border: rgba(197, 168, 128, 0.15);
 }
 
 /* Custom Base Styles */
@@ -96,5 +96,49 @@ html.dark {
 }
 .gold-border-hover:hover {
   border-color: var(--color-decor-gold);
-  box-shadow: 0 12px 40px rgba(202, 167, 80, 0.05);
+  box-shadow: 0 12px 40px rgba(197, 168, 128, 0.05);
+}
+
+/* Light mode overrides for admin dashboard hardcoded classes */
+html:not(.dark) .bg-\[\#0B0B0C\] {
+  background-color: var(--bg-primary) !important;
+}
+html:not(.dark) .bg-\[\#121214\] {
+  background-color: var(--bg-secondary) !important;
+}
+html:not(.dark) .bg-\[\#121214\]\/80 {
+  background-color: var(--glass-bg) !important;
+}
+html:not(.dark) .border-\[\#222225\],
+html:not(.dark) .border-b-\[\#222225\],
+html:not(.dark) .border-r-\[\#222225\],
+html:not(.dark) .border-t-\[\#222225\] {
+  border-color: var(--border-cream) !important;
+}
+html:not(.dark) .border-white\/10 {
+  border-color: var(--border-cream) !important;
+}
+html:not(.dark) .border-\[\#222225\]\/40 {
+  border-color: var(--glass-border) !important;
+}
+html:not(.dark) .text-\[\#FAF8F5\],
+html:not(.dark) .text-white {
+  color: var(--text-primary) !important;
+}
+html:not(.dark) .text-zinc-400 {
+  color: var(--text-secondary) !important;
+}
+html:not(.dark) .text-zinc-500 {
+  color: var(--text-secondary) !important;
+}
+html:not(.dark) .bg-zinc-800\/50,
+html:not(.dark) .bg-zinc-900\/40 {
+  background-color: var(--bg-secondary) !important;
+}
+html:not(.dark) .bg-zinc-850,
+html:not(.dark) .bg-zinc-800 {
+  background-color: var(--bg-secondary) !important;
+}
+html:not(.dark) .bg-black\/40 {
+  background-color: var(--glass-bg) !important;
 }

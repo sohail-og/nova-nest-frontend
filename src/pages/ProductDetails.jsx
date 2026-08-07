@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import { Heart, ShoppingBag, ArrowLeft, Star, Shield, Truck, RotateCcw } from 'lucide-react';
+import ProductCard from '../components/ProductCard';
 
 const inrFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -23,28 +24,45 @@ export default function ProductDetails() {
   const [activeImage, setActiveImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [recommendations, setRecommendations] = useState([]);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       setLoading(true);
       try {
-        const prodRes = await axios.get(`http://localhost:8080/api/products/${id}`);
-        setProduct(prodRes.data);
+        const prodRes = await API.get(`/api/products/${id}`);
+        const productData = prodRes.data;
+        setProduct(productData);
 
         // Fetch matching product images
         try {
-          const imgRes = await axios.get(`http://localhost:8080/api/productimages/product/${id}`);
+          const imgRes = await API.get(`/api/productimages/product/${id}`);
           const imageList = imgRes.data || [];
           setImages(imageList);
           if (imageList.length > 0) {
             setActiveImage(imageList[0].imageUrl);
           } else {
-            setActiveImage('/api/placeholder/600/700');
+            setActiveImage(productData.imageUrl || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop');
           }
         } catch (imgErr) {
           console.error("Failed to load product images details", imgErr);
-          setActiveImage('/api/placeholder/600/700');
+          setActiveImage(productData.imageUrl || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop');
         }
+
+        // Fetch recommendations
+        try {
+          const allProdRes = await API.get('/api/products');
+          const allProducts = allProdRes.data || [];
+          const categoryId = productData.category?.id;
+          const filtered = allProducts.filter(p => 
+            (p.id || p.productId) !== (productData.id || productData.productId) && 
+            p.category?.id === categoryId
+          ).slice(0, 4);
+          setRecommendations(filtered);
+        } catch (recErr) {
+          console.error("Failed to load recommendations", recErr);
+        }
+
       } catch (err) {
         console.error("Failed to fetch product details", err);
         toast.error("Failed to load product details");
@@ -84,12 +102,12 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-decor-ivory text-decor-charcoal py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-decor-ivory text-decor-charcoal py-16 px-6 md:px-12 max-w-7xl mx-auto">
       
       {/* Back Link */}
       <button 
         onClick={() => navigate(-1)} 
-        className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-widest text-decor-stone hover:text-decor-black transition-colors mb-12"
+        className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-widest text-decor-stone hover:text-decor-black transition-colors mb-12 bg-transparent border-none cursor-pointer"
       >
         <ArrowLeft size={12} />
         <span>Back to Collection</span>
@@ -100,11 +118,12 @@ export default function ProductDetails() {
         
         {/* Images Component */}
         <div className="space-y-4">
-          <div className="aspect-[4/5] bg-decor-beige border border-decor-cream rounded-sm overflow-hidden relative">
+          <div className="aspect-[4/5] bg-decor-beige border border-decor-cream rounded-sm overflow-hidden relative group">
+            {/* Zoom Effect */}
             <img 
               src={activeImage} 
               alt={product.name} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-500 ease-out hover:scale-125 cursor-zoom-in"
             />
             {product.discount > 0 && (
               <span className="absolute top-4 left-4 bg-decor-gold text-decor-ivory text-[9px] uppercase tracking-widest px-2 py-0.5 z-10">
@@ -120,7 +139,7 @@ export default function ProductDetails() {
                 <button
                   key={img.imageId}
                   onClick={() => setActiveImage(img.imageUrl)}
-                  className={`w-20 aspect-[4/5] rounded-sm overflow-hidden border transition-all ${
+                  className={`w-20 aspect-[4/5] rounded-sm overflow-hidden border transition-all cursor-pointer ${
                     activeImage === img.imageUrl ? 'border-decor-gold' : 'border-decor-cream opacity-70 hover:opacity-100'
                   }`}
                 >
@@ -132,7 +151,7 @@ export default function ProductDetails() {
         </div>
 
         {/* Details Column */}
-        <div className="space-y-6 flex flex-col justify-center">
+        <div className="space-y-6 flex flex-col justify-center text-left">
           
           {/* Tag & Name */}
           <div className="space-y-2">
@@ -186,14 +205,14 @@ export default function ProductDetails() {
               <div className="flex items-center border border-decor-cream rounded-sm">
                 <button 
                   onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="px-3 py-1.5 text-decor-stone hover:text-decor-black transition-colors"
+                  className="px-3 py-1.5 text-decor-stone hover:text-decor-black transition-colors bg-transparent border-none cursor-pointer"
                 >
                   -
                 </button>
                 <span className="px-4 text-xs font-medium text-decor-black">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(prev => Math.min(product.stock || 99, prev + 1))}
-                  className="px-3 py-1.5 text-decor-stone hover:text-decor-black transition-colors"
+                  className="px-3 py-1.5 text-decor-stone hover:text-decor-black transition-colors bg-transparent border-none cursor-pointer"
                 >
                   +
                 </button>
@@ -208,7 +227,7 @@ export default function ProductDetails() {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
-                className="flex-1 bg-decor-black hover:bg-decor-stone disabled:bg-decor-cream text-decor-ivory text-[10px] tracking-[0.25em] uppercase py-3.5 font-medium transition-all duration-300 rounded-sm shadow-sm flex items-center justify-center space-x-2"
+                className="flex-1 bg-decor-black hover:bg-decor-stone disabled:bg-decor-cream text-decor-ivory text-[10px] tracking-[0.25em] uppercase py-3.5 font-medium transition-all duration-300 rounded-sm shadow-sm flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <ShoppingBag size={14} />
                 <span>Add To Shopping Bag</span>
@@ -216,7 +235,7 @@ export default function ProductDetails() {
               
               <button
                 onClick={() => toggleWishlist(product)}
-                className={`p-3.5 rounded-sm border transition-all ${
+                className={`p-3.5 rounded-sm border transition-all cursor-pointer ${
                   isInWishlist(product.id || product.productId) 
                     ? 'border-red-400 text-red-500 bg-red-50/10' 
                     : 'border-decor-cream text-decor-stone hover:text-decor-black hover:bg-decor-beige'
@@ -245,6 +264,68 @@ export default function ProductDetails() {
 
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <div className="pt-20 border-t border-decor-cream mt-20 grid grid-cols-1 lg:grid-cols-3 gap-12 text-left">
+        <div className="space-y-4">
+          <h3 className="font-serif text-xl text-decor-black uppercase tracking-wider">Customer Experience</h3>
+          <div className="flex items-center space-x-3">
+            <div className="flex text-decor-gold">
+              {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" className="stroke-none" />)}
+            </div>
+            <span className="text-sm font-medium text-decor-black font-sans">{product.rating || 4.5} out of 5</span>
+          </div>
+          <p className="text-xs text-decor-stone font-light leading-relaxed">
+            Based on verified collector acquisitions. We ensure complete transparency and bespoke care for every residential delivery.
+          </p>
+        </div>
+
+        <div className="lg:col-span-2 space-y-8">
+          <div className="border-b border-decor-cream pb-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-decor-black">Shaik S.</span>
+              <span className="text-[10px] text-decor-stone font-light">July 2026</span>
+            </div>
+            <div className="flex text-decor-gold">
+              {[...Array(5)].map((_, i) => <Star key={i} size={9} fill="currentColor" className="stroke-none" />)}
+            </div>
+            <p className="text-xs text-decor-stone font-light leading-relaxed font-serif">
+              "This piece has completely transformed our living space. The texture detail in the travertine and the clean lines feel incredibly premium. The delivery service was also impeccable."
+            </p>
+          </div>
+
+          <div className="border-b border-decor-cream pb-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-decor-black">Aarav M.</span>
+              <span className="text-[10px] text-decor-stone font-light">June 2026</span>
+            </div>
+            <div className="flex text-decor-gold">
+              {[...Array(5)].map((_, i) => <Star key={i} size={9} fill="currentColor" className="stroke-none" />)}
+            </div>
+            <p className="text-xs text-decor-stone font-light leading-relaxed font-serif">
+              "Exquisite craftsmanship. The packaging itself was a work of art. Well worth the wait and is a true conversation starter."
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommendations / Related Products */}
+      {recommendations.length > 0 && (
+        <div className="pt-20 border-t border-decor-cream mt-20 space-y-12 text-left">
+          <div className="text-center space-y-3">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-decor-gold font-medium block">Related Accents</span>
+            <h2 className="text-2xl font-serif text-decor-black uppercase tracking-wider">You May Also Like</h2>
+            <div className="w-12 h-[1px] bg-decor-gold/30 mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {recommendations.map((rec) => (
+              <ProductCard key={rec.id || rec.productId} product={rec} />
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

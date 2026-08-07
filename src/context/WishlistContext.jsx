@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from 'react';
+import API from '../services/api';
 import { toast } from 'react-toastify';
 
 const WishlistContext = createContext();
@@ -8,20 +9,15 @@ export function WishlistProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   const loadWishlist = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const username = localStorage.getItem('username') || localStorage.getItem('token');
+    if (!username) {
       setWishlistItems([]);
       return;
     }
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/wishlist', { headers: getHeaders() });
+      const response = await API.get('/api/wishlist');
       // Map WishlistItem entities to product list
       const products = (response.data || []).map(item => item.product);
       setWishlistItems(products);
@@ -37,16 +33,15 @@ export function WishlistProvider({ children }) {
   }, []);
 
   const toggleWishlist = async (product) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const username = localStorage.getItem('username') || localStorage.getItem('token');
+    if (!username) {
       toast.info("Please login to manage your wishlist");
       return;
     }
     try {
-      const response = await axios.post(
-        'http://localhost:8080/api/wishlist/toggle',
-        { productId: product.id || product.productId },
-        { headers: getHeaders() }
+      const response = await API.post(
+        '/api/wishlist/toggle',
+        { productId: product.id || product.productId }
       );
       
       const { status, message } = response.data;

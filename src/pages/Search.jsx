@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
-import { Search as SearchIcon, ArrowRight, Heart, ShoppingBag } from 'lucide-react';
+import API from '../services/api';
+import { Search as SearchIcon,Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
@@ -24,7 +24,7 @@ export default function Search() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/products');
+        const response = await API.get('/api/products');
         setProducts(response.data || []);
       } catch (err) {
         console.error("Failed to load products API in search", err);

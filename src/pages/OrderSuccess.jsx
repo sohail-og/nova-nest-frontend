@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useLocation, Link, Navigate } from 'react-router-dom';
 import { CheckCircle, Calendar, CreditCard, ChevronRight } from 'lucide-react';
 

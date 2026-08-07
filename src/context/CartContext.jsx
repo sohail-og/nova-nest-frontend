@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from 'react';
+import API from '../services/api';
 import { toast } from 'react-toastify';
 
 const CartContext = createContext();
@@ -8,20 +9,15 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   const loadCart = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const username = localStorage.getItem('username') || localStorage.getItem('token');
+    if (!username) {
       setCartItems([]);
       return;
     }
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/cart', { headers: getHeaders() });
+      const response = await API.get('/api/cart');
       setCartItems(response.data || []);
     } catch (err) {
       console.error("Failed to load cart from backend API", err.config?.url, err.response?.status);
@@ -35,13 +31,13 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = async (productId, quantity = 1) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const username = localStorage.getItem('username') || localStorage.getItem('token');
+    if (!username) {
       toast.info("Please login to manage your shopping cart");
       return false;
     }
     try {
-      await axios.post('http://localhost:8080/api/cart', { productId, quantity }, { headers: getHeaders() });
+      await API.post('/api/cart', { productId, quantity });
       toast.success("Added to shopping bag successfully");
       loadCart();
       return true;
@@ -57,7 +53,7 @@ export function CartProvider({ children }) {
       return removeFromCart(cartItemId);
     }
     try {
-      await axios.put(`http://localhost:8080/api/cart/${cartItemId}`, { quantity: newQuantity }, { headers: getHeaders() });
+      await API.put(`/api/cart/${cartItemId}`, { quantity: newQuantity });
       loadCart();
       return true;
     } catch (err) {
@@ -69,7 +65,7 @@ export function CartProvider({ children }) {
 
   const removeFromCart = async (cartItemId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/cart/${cartItemId}`, { headers: getHeaders() });
+      await API.delete(`/api/cart/${cartItemId}`);
       toast.success("Removed from shopping bag");
       loadCart();
       return true;
@@ -82,7 +78,7 @@ export function CartProvider({ children }) {
 
   const clearCart = async () => {
     try {
-      await axios.delete('http://localhost:8080/api/cart/clear', { headers: getHeaders() });
+      await API.delete('/api/cart/clear');
       setCartItems([]);
       return true;
     } catch (err) {
