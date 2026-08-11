@@ -36,6 +36,11 @@ export default function Register() {
       return;
     }
 
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -53,7 +58,23 @@ export default function Register() {
       navigate('/login');
     } catch (err) {
       console.error("Registration request failed", err);
-      toast.error(err.response?.data?.message || err.response?.data || "Registration failed. Please check your inputs.");
+      let errorMessage = "Registration failed. Please check your inputs.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (typeof err.response.data === 'object') {
+          // Extract first validation error
+          const firstError = Object.values(err.response.data)[0];
+          if (typeof firstError === 'string') errorMessage = firstError;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
