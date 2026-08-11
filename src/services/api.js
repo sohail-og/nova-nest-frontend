@@ -34,7 +34,7 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && !error.config.url.includes('/auth/login') && !error.config.url.includes('/admin/login')) {
       if (error.config && error.config.url && error.config.url.startsWith('/api/admin/')) {
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminEmail');
@@ -50,3 +50,4 @@ API.interceptors.response.use(
 );
 
 export default API;
+
