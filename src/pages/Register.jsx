@@ -177,35 +177,21 @@ export default function Register() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Gender */}
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-widest text-decor-stone font-medium block">Gender</label>
-                      <div className="relative flex items-center border-b border-decor-cream py-1">
-                        <Users size={14} className="text-decor-stone/70 mr-2" />
-                        <select
-                          name="gender"
-                          value={formData.gender}
-                          onChange={handleInputChange}
-                          className="bg-transparent border-none text-xs text-decor-black focus:outline-none w-full cursor-pointer tracking-wider bg-decor-beige"
-                        >
-                          <option value="MALE">Male</option>
-                          <option value="FEMALE">Female</option>
-                          <option value="OTHER">Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Password display toggle */}
-                    <div className="space-y-1 flex items-end">
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="text-[9px] uppercase tracking-widest text-decor-stone hover:text-decor-gold transition-colors font-medium flex items-center space-x-1 mb-2.5"
+                  {/* Gender */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase tracking-widest text-decor-stone font-medium block">Gender</label>
+                    <div className="relative flex items-center border-b border-decor-cream py-1">
+                      <Users size={14} className="text-decor-stone/70 mr-2" />
+                      <select
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleInputChange}
+                        className="bg-transparent border-none text-xs text-decor-black focus:outline-none w-full cursor-pointer tracking-wider bg-decor-beige"
                       >
-                        {showPassword ? <EyeOff size={11} /> : <Eye size={11} />}
-                        <span>{showPassword ? 'Hide Passwords' : 'Show Passwords'}</span>
-                      </button>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                      </select>
                     </div>
                   </div>
 
@@ -221,9 +207,12 @@ export default function Register() {
                           placeholder="Create password"
                           value={formData.password}
                           onChange={handleInputChange}
-                          className="bg-transparent border-none text-xs text-decor-black placeholder-decor-stone/50 focus:outline-none w-full pr-4 tracking-wide"
+                          className="bg-transparent border-none text-xs text-decor-black placeholder-decor-stone/50 focus:outline-none w-full pr-8 tracking-wide"
                           required
                         />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 text-decor-stone hover:text-decor-gold">
+                           {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -236,9 +225,12 @@ export default function Register() {
                           placeholder="Confirm password"
                           value={formData.confirmPassword}
                           onChange={handleInputChange}
-                          className="bg-transparent border-none text-xs text-decor-black placeholder-decor-stone/50 focus:outline-none w-full pr-4 tracking-wide"
+                          className="bg-transparent border-none text-xs text-decor-black placeholder-decor-stone/50 focus:outline-none w-full pr-8 tracking-wide"
                           required
                         />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 text-decor-stone hover:text-decor-gold">
+                           {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
                       </div>
                     </div>
                   </div>

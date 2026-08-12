@@ -259,10 +259,10 @@ export default function Profile() {
               <div className="flex space-x-3 pt-3">
                 <button
                   type="submit"
-                  className="flex-1 bg-decor-black hover:bg-decor-stone text-white text-[9px] tracking-widest uppercase py-2.5 font-bold transition-colors rounded-sm cursor-pointer flex items-center justify-center space-x-1.5"
+                  className="flex-1 bg-decor-black hover:bg-decor-stone text-white text-xs tracking-widest uppercase py-2.5 font-bold transition-colors rounded-sm cursor-pointer flex items-center justify-center space-x-1.5"
                 >
                   <Save size={12} />
-                  <span>Save Changes</span>
+                  <span className="text-white">Save Changes</span>
                 </button>
                 <button
                   type="button"
