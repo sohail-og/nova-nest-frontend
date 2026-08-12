@@ -7,8 +7,8 @@ import Categories from '../pages/Categories';
 import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
-import ForgotPassword from '../pages/ForgotPassword';
-import ResetPassword from '../pages/ResetPassword';
+
+
 import Cart from '../pages/Cart';
 import Wishlist from '../pages/Wishlist';
 import Profile from '../pages/Profile';
@@ -71,14 +71,6 @@ export const router = createBrowserRouter([
         element: <Register />
       },
       {
-        path: '/forgot-password',
-        element: <ForgotPassword />
-      },
-      {
-        path: '/reset-password',
-        element: <ResetPassword />
-      },
-      {
         path: '/cart',
         element: <ProtectedRoute><Cart /></ProtectedRoute>
       },
@@ -121,3 +113,4 @@ export const router = createBrowserRouter([
     element: <AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>
   }
 ]);
+

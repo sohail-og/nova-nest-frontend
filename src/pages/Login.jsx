@@ -80,9 +80,6 @@ export default function Login() {
               <label className="text-[10px] uppercase tracking-widest text-decor-stone font-medium block">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-[9px] uppercase tracking-wider text-decor-gold hover:text-decor-gold-light transition-colors">
-                Forgot password?
-              </Link>
             </div>
             <div className="relative flex items-center border-b border-decor-cream focus-within:border-decor-gold py-1.5 transition-colors">
               <Lock size={14} className="text-decor-stone/70 mr-2" />
