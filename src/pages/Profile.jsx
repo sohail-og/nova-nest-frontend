@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useCart } from '../context/CartContext';
-import { User, Mail, Phone, Calendar, ShoppingBag, LogOut, Edit2, MapPin, Camera, Save, Heart, AlertCircle, Key } from 'lucide-react';
+import { User, Mail, Phone, Calendar, ShoppingBag, LogOut, Edit2, MapPin, Camera, Save, Heart, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import API from '../services/api';
 import AddressModal from '../components/AddressModal';
-import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const renderPremiumAddress = (addr) => {
   if (!addr || !addr.houseNo) {
@@ -30,7 +29,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   
   // Form states for profile edit (excluding address)
   const [editForm, setEditForm] = useState({
@@ -379,14 +377,6 @@ export default function Profile() {
           </Link>
 
           <button
-            onClick={() => setIsChangePasswordModalOpen(true)}
-            className="bg-decor-cream/30 border border-decor-cream hover:border-decor-gold text-decor-black p-6 rounded-sm text-center flex flex-col items-center justify-center space-y-2 group transition-all duration-300 shadow-sm cursor-pointer"
-          >
-            <Key size={20} className="text-decor-stone group-hover:text-decor-gold transition-colors duration-300" />
-            <span className="text-[10px] uppercase tracking-widest font-medium">Change Password</span>
-          </button>
-
-          <button
             onClick={handleLogout}
             className="bg-red-50/10 border border-red-200/50 hover:border-red-400 text-red-600 p-6 rounded-sm text-center flex flex-col items-center justify-center space-y-2 group transition-all duration-300 shadow-sm cursor-pointer"
           >
@@ -403,11 +393,6 @@ export default function Profile() {
         onSave={handleSaveAddress}
         initialData={profile.address}
         title="Edit Profile Address"
-      />
-
-      <ChangePasswordModal 
-        isOpen={isChangePasswordModalOpen}
-        onClose={() => setIsChangePasswordModalOpen(false)}
       />
     </div>
   );
