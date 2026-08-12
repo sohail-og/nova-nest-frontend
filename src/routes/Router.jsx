@@ -8,7 +8,6 @@ import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ForgotPassword from '../pages/ForgotPassword';
-import VerifyOtp from '../pages/VerifyOtp';
 import ResetPassword from '../pages/ResetPassword';
 import Cart from '../pages/Cart';
 import Wishlist from '../pages/Wishlist';
@@ -74,10 +73,6 @@ export const router = createBrowserRouter([
       {
         path: '/forgot-password',
         element: <ForgotPassword />
-      },
-      {
-        path: '/verify-otp',
-        element: <VerifyOtp />
       },
       {
         path: '/reset-password',

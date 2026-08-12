@@ -14,11 +14,12 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   const email = searchParams.get('email') || '';
+  const token = searchParams.get('token') || '';
 
   const handleReset = async (e) => {
     e.preventDefault();
-    if (!email) {
-      toast.error("Email context is missing. Please restart recovery flow.");
+    if (!email || !token) {
+      toast.error("Invalid or missing reset link. Please request a new one.");
       return;
     }
     if (!newPassword || !confirmPassword) {
@@ -32,12 +33,12 @@ export default function ResetPassword() {
 
     setLoading(true);
     try {
-      await authService.resetPassword({ email, newPassword, confirmPassword });
+      await authService.resetPassword({ email, token, newPassword, confirmPassword });
       toast.success("Password reset successfully! Please sign in with your new credentials.");
       navigate('/login');
     } catch (err) {
       console.error("Password reset request failed", err.config?.url, err.response?.status);
-      toast.error(err.response?.data?.message || "Failed to reset password. Link or OTP might be invalid.");
+      toast.error(err.response?.data?.message || "Failed to reset password. Link might be invalid or expired.");
     } finally {
       setLoading(false);
     }

@@ -19,11 +19,11 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       await authService.forgotPassword(email);
-      toast.success("OTP sent to your email successfully");
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+      toast.success("Password reset link sent to your email. Please check your inbox.");
+      navigate('/login');
     } catch (err) {
-      console.error("Forgot password OTP request failed", err.config?.url, err.response?.status);
-      toast.error(err.response?.data?.error || err.response?.data?.message || "Failed to send OTP. Please verify your email.");
+      console.error("Forgot password request failed", err.config?.url, err.response?.status);
+      toast.error(err.response?.data?.error || err.response?.data?.message || "Failed to send reset link. Please verify your email.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
           </h2>
           <div className="w-8 h-[1px] bg-decor-gold/30 mx-auto" />
           <p className="text-[10px] text-decor-stone font-light leading-relaxed tracking-wider pt-2">
-            Enter your registered email address below, and we will send you a one-time passcode to reset your credentials.
+            Enter your registered email address below, and we will send you a secure link to reset your credentials.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
             {loading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
             ) : (
-              "Send OTP"
+              "Send Reset Link"
             )}
           </button>
 
